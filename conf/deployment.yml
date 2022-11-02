@@ -14,14 +14,17 @@ custom:
 #    instance_pool_id: '0617-151415-bells2-pool-hh7h6tjm'
 
   dev-cluster-config: &dev-cluster-config
+    job_cluster_key: 'default_cluster'
     new_cluster:
       <<: *default-cluster-spec
 
   staging-cluster-config: &staging-cluster-config
+    job_cluster_key: 'default_cluster'
     new_cluster:
       <<: *default-cluster-spec
 
   prod-cluster-config: &prod-cluster-config
+    job_cluster_key: 'default_cluster'
     new_cluster:
       <<: *default-cluster-spec
 
@@ -35,6 +38,7 @@ environments:
       - name: 'daiwtmuc-DEV-telco-churn-demo-setup'
         <<: *dev-cluster-config
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: '/Repos/tatiana.sennikova@databricks.com/daiwt-mlops/notebooks/demo_setup'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/dev/.dev.env',
@@ -42,6 +46,7 @@ environments:
       - name: 'daiwtmuc-DEV-telco-churn-feature-table-creation'
         <<: *dev-cluster-config
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: '/Repos/tatiana.sennikova@databricks.com/daiwt-mlops/notebooks/feature_table_creator'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/dev/.dev.env',
@@ -50,6 +55,7 @@ environments:
         <<:
           - *dev-cluster-config
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: '/Repos/tatiana.sennikova@databricks.com/daiwt-mlops/notebooks/model_train'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/dev/.dev.env',
@@ -58,6 +64,7 @@ environments:
         <<:
           - *dev-cluster-config
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: '/Repos/tatiana.sennikova@databricks.com/daiwt-mlops/notebooks/model_deployment'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/dev/.dev.env',
@@ -66,6 +73,7 @@ environments:
         <<:
           - *dev-cluster-config
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: '/Repos/tatiana.sennikova@databricks.com/daiwt-mlops/notebooks/model_inference_batch'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/dev/.dev.env',
@@ -74,6 +82,7 @@ environments:
         <<:
           - *dev-cluster-config
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: 'file://tests/integration/sample_test.py'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/dev/.dev.env',
@@ -86,6 +95,7 @@ environments:
         <<:
           - *staging-cluster-config
         spark_python_task:
+          job_cluster_key: 'default_cluster'
           python_file: 'file://tests/integration/sample_test.py'
           parameters: ['--env', 'file:fuse://conf/staging/.staging.env',
                        '--conf-file', 'file:fuse://conf/pipeline_configs/sample_test.yml']
@@ -100,6 +110,7 @@ environments:
           git_provider: "github"
           git_branch: "main"
         notebook_task:
+          job_cluster_key: 'default_cluster'
           notebook_path: 'notebooks/demo_setup'
           parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
                        '--env', 'file:fuse://conf/prod/.prod.env',
@@ -108,6 +119,7 @@ environments:
       - name: 'daiwtmuc-PROD-telco-churn-initial-model-train-register'
         tasks:
           - task_key: 'demo-setup'
+            job_cluster_key: 'default_cluster'
             <<:
               - *prod-cluster-config
             spark_python_task:
@@ -116,6 +128,7 @@ environments:
                            '--env', 'file:fuse://conf/prod/.prod.env',
                            '--conf-file', 'file:fuse://conf/pipeline_configs/demo_setup.yml']
           - task_key: 'feature-table-creation'
+            job_cluster_key: 'default_cluster'
             <<: *prod-cluster-config
             depends_on:
               - task_key: 'demo-setup'
@@ -125,6 +138,7 @@ environments:
                            '--env', 'file:fuse://conf/prod/.prod.env',
                            '--conf-file', 'file:fuse://conf/pipeline_configs/feature_table_creator.yml']
           - task_key: 'model-train'
+            job_cluster_key: 'default_cluster'
             <<: *prod-cluster-config
             depends_on:
               - task_key: 'demo-setup'
@@ -142,12 +156,14 @@ environments:
           git_branch: "main"
         tasks:
           - task_key: 'model-train'
+            job_cluster_key: 'default_cluster'
             <<: *prod-cluster-config
             notebook_task:
               notebook_path: 'notebooks/model_train'
               base_parameters: {"env" : "prod"}
             
           - task_key: 'model-deploy'
+            job_cluster_key: 'default_cluster'
             <<: *prod-cluster-config
             notebook_task:
               notebook_path: 'notebooks/model_deployment'
@@ -156,6 +172,7 @@ environments:
               - task_key: 'model-train'
 
           - task_key: 'model-inference-batch'
+            job_cluster_key: 'default_cluster'
             <<: *prod-cluster-config
             notebook_task:
               notebook_path: 'notebooks/model_inference_batch'
@@ -173,6 +190,7 @@ environments:
           git_branch: "main"
         tasks:
           - task_key: 'model-train'
+            job_cluster_key: 'default_cluster'
             notebook_task:
               notebook_path: 'notebooks/model_train'
               base_parameters: {"env" : "prod"}
@@ -188,6 +206,7 @@ environments:
           git_branch: "main"
         tasks:
           - task_key: 'model-deploy'
+            job_cluster_key: 'default_cluster'
             notebook_task:
               notebook_path: 'notebooks/model_deployment'
               parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
@@ -202,6 +221,7 @@ environments:
           git_branch: "main"
         tasks:
           - task_key: 'model-inference-batch'
+            job_cluster_key: 'default_cluster'
             notebook_task:
               notebook_path: 'notebooks/model_inference_batch'
               parameters: ['--base-data-params', 'file:fuse://conf/.base_data_params.env',
