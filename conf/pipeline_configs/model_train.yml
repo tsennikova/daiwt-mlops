@@ -1,5 +1,5 @@
 mlflow_params:
-  run_name: 'shallow_forest'
+  run_name: 'deep_forest'
 
 pipeline_params:
   test_size: 0.25
